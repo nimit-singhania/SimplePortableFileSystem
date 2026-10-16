@@ -19,8 +19,18 @@
 
 #include "boost/json.hpp"
 
+dir_entity::~dir_entity() {
+	for (auto p: this->children) {
+		delete p.second;
+	}
+}
+
 std::vector<std::string> splitPath(std::string path) {
 	std::vector<std::string> result;
+
+	if (path[0] != '/') {
+		path = '/' + path;
+	}
 
 	int pos = 0;
 	while(pos < path.size()) {
@@ -57,11 +67,15 @@ int makeDir(entity* root, std::string path) {
 	std::vector<std::string> split = splitPath(path);
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
-	if (parentDir == nullptr)
+	if (parentDir == nullptr) {
+		std::cout << "Path not valid, please make sure that the preceding directories in the path are present!"
+			  << std::endl;
 		return -1;
+	}
 
 	auto dirname = split[split.size() - 1];
 	if (parentDir->children.find(dirname) != parentDir->children.end()) {
+		std::cout << "Entity with name " << dirname << " already present!" << std::endl;
 		return -1;
 	}
 	// Add directory as a child.
@@ -74,11 +88,15 @@ int writeFile(entity* root, std::string path, std::string data) {
 	std::vector<std::string> split = splitPath(path);
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
-	if (parentDir == nullptr)
+	if (parentDir == nullptr) {
+		std::cout << "Path not valid, please make sure that the preceding directories in the path are present!"
+			  << std::endl;
 		return -1;
+	}
 
 	auto filename = split[split.size() -1];
 	if (parentDir->children.find(filename) != parentDir->children.end()) {
+		std::cout << "Entity with name " << filename << " already present!" << std::endl;
 		return -1;
 	}
 
@@ -94,8 +112,10 @@ std::string ls(entity* root, std::string path) {
 	std::vector<std::string> split = splitPath(path);
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size()));
-	if (parentDir == nullptr)
+	if (parentDir == nullptr) {
+		std::cout << "Path not found! Please check that the path provided is valid." << std::endl;
 		return "";
+	}
 
 	std::string names;
 	for (auto p : parentDir->children) {
@@ -110,7 +130,10 @@ std::string readFile(entity* root, std::string path) {
 	std::vector<std::string> split = splitPath(path);
 
 	file_entity* file = dynamic_cast<file_entity*>(traversePath(root, split, split.size()));
-	if (file == nullptr) return "";
+	if (file == nullptr) {
+		std::cout << "Path not found! Please check that the path provided is valid." << std::endl;
+		return "";
+	}
 	return file->data;
 }
 
@@ -222,6 +245,7 @@ int main(int argc, char** argv) {
 */
 	while (true) {
 		char buf[1024];
+		std::cout << "$";
 		std::cin.getline(buf, 1024);
 		// Read operation.
 		std::string op = getOperation(buf);
@@ -238,6 +262,7 @@ int main(int argc, char** argv) {
 	}
 
 	boost::json::object root_json = exportEntityToJson(root);
+	delete(root);
 	std::cout << boost::json::serialize(root_json) << std::endl;
 
 	// write json to a file (specified by commandline).

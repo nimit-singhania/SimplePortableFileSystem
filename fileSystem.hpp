@@ -9,6 +9,7 @@ public:
 
 class dir_entity: public entity {
 public:
+	~dir_entity();
 	std::map<std::string, entity*> children;
 };
 

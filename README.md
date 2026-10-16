@@ -1,8 +1,9 @@
 ## Simple Portable FileSystem
 
-This implementation presents a simple filesystem that allows limited operations like create a directory, write a file,
-read directory contents and read files. The implementation also supports reading a filesystem stored as JSON and write back updated filesystem as JSON. By enabling JSON support, the filesystem is portable, can be transfered to an alternate
-location and recreated. The operations supported by the filesystem include:
+This implementation presents a simple filesystem that allows operations like create a directory, write a file,
+read directory contents and read files. The implementation also supports reading a filesystem stored as JSON and
+writing back the updated filesystem as JSON. By enabling JSON support, the filesystem is portable, can be transfered
+to an alternate location and recreated. The operations supported by the filesystem include:
 
 * MakeDir(path): this creates a directory given by the `path`. The operation succeeds if the parent directory is already
   created and an entity with the name of the directory is not already present.
@@ -29,36 +30,36 @@ The filesystem accepts the following operations:
 
 * Make directory (note absolute path prefixed with `/` must be provided)
 ```
-   makedir <absolute_path>
+   $makedir <absolute_path>
 
    example:
-   makedir /test1
+   $makedir /test1
 ```
 * Write a file
 ```
-  write_file <absolute_path> <contents>
+  $write_file <absolute_path> <contents>
 
   example:
-  write_file /test1/testfile.txt Hello World
+  $write_file /test1/testfile.txt Hello World
 ```
 
 * Show contents of a directory.
 ```
-  ls <dir_path>
+  $ls <dir_path>
 
   example:
-  ls /test1
+  $ls /test1
 ```
 
 * Display contents of a file.
 ```
-  read_file <absolute_path>
+  $read_file <absolute_path>
 
   example:
-  read_file /test1/testfile.txt
+  $read_file /test1/testfile.txt
 ```
 
 * Exit the filesystem (and store contents in JSON if available)
 ```
-  exit
+  $exit
 ```
