@@ -13,6 +13,7 @@
 
 #include "fileSystem.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -81,6 +82,7 @@ int makeDir(entity* root, std::string path) {
 	}
 	// Add directory as a child.
 	auto* dir = new dir_entity;
+	dir->parents.push_back(parentDir);
 	parentDir->children.emplace(dirname, dir);
 	return 0;
 }
@@ -104,8 +106,10 @@ int moveDir(entity* root, std::string src_path, std::string dst_path) {
 		return -1;
 	}
 	auto* dir = parentDir->children[dirname];
+	dir->parents.erase(std::find(dir->parents.begin(), dir->parents.end(), parentDir));
 	parentDir->children.erase(dirname);
 	dstDir->children[dirname] = dir;
+	dir->parents.push_back(dstDir);
 	return 0;
 }
 
@@ -135,8 +139,44 @@ int rmDir(entity* root, std::string path) {
 		std::cout << "Not empty directory found. Please empty the directory before removing it." << std::endl;
 		return -1;
 	}
+	for (auto* p : dir->parents) {
+		auto* pdir = dynamic_cast<dir_entity*>(p);
+		std::vector<std::string> removed_entity_names;
+		for (auto& c : pdir->children) {
+			if (c.second == dir) {
+				removed_entity_names.push_back(c.first);
+			}
+		}
+		for (auto e : removed_entity_names) {
+			pdir->children.erase(e);
+		}
+	}
 	delete dir;
-	parentDir->children.erase(dirname);
+	return 0;
+}
+
+int link(entity* root, std::string path, std::string dst_path) {
+	std::vector<std::string> split = splitPath(path);
+	if (split.size() == 0) return -1;
+	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() -1 ));
+	auto entity_name = split[split.size()  - 1];
+	if (parentDir == nullptr || parentDir->children.find(entity_name) == parentDir->children.end()) {
+		std::cout << "Path invalid. Please make sure that the entity being linked is present."
+			  << std::endl;
+		return -1;
+	}
+	std::vector<std::string> dstsplit = splitPath(dst_path);
+	if (dstsplit.size() == 0) return -1;
+	dir_entity* dstparentDir = dynamic_cast<dir_entity*>(traversePath(root, dstsplit, dstsplit.size() - 1));
+	auto dst_entity_name = dstsplit[dstsplit.size() -1];
+	if (dstparentDir == nullptr || dstparentDir->children.find(dst_entity_name) != dstparentDir->children.end()) {
+		std::cout << "Link path invalid. Please make sure that the link path is valid and entity with link path"
+			  << " is not present." << std::endl;
+		return -1;
+	}
+	auto* entity = parentDir->children[entity_name];
+	entity->parents.push_back(dstparentDir);
+	dstparentDir->children.emplace(dst_entity_name, entity);
 	return 0;
 }
 
@@ -169,8 +209,9 @@ int renameFile(entity* root, std::string path, std::string dst_path) {
 	}
 	auto* file = parentDir->children[filename];
 	parentDir->children.erase(filename);
+	file->parents.erase(std::find(file->parents.begin(), file->parents.end(), parentDir));
 	dstParentDir->children.emplace(dstFileName, file);
-
+	file->parents.push_back(dstParentDir);
 	return 0;
 }
 
@@ -194,7 +235,7 @@ int writeFile(entity* root, std::string path, std::string data) {
 	// Add a new file as child.
 	auto* file = new file_entity;
 	file->data = data;
-
+	file->parents.push_back(parentDir);
 	parentDir->children.emplace(filename, file);
 	return 0;
 }
@@ -216,9 +257,20 @@ int removeFile(entity* root, std::string path) {
 	}
 
 	entity* file = parentDir->children[filename];
-	delete file;
 
-	parentDir->children.erase(filename);
+	for (auto* parent: file->parents) {
+		auto* pdir = dynamic_cast<dir_entity*>(parent);
+		std::vector<std::string> removed_entity_names;
+		for (auto& p: pdir->children) {
+			if (p.second == file) {
+				removed_entity_names.push_back(p.first);
+			}
+		}
+		for (auto e : removed_entity_names) {
+			pdir->children.erase(e);
+		}
+	}
+	delete file;
 	return 0;
 }
 
@@ -399,6 +451,8 @@ int main(int argc, char** argv) {
 			moveDir(root, getPath(buf), getSecondPath(buf));
 		if (op == "rename_file")
 			renameFile(root, getPath(buf), getSecondPath(buf));
+		if (op == "link")
+			link(root, getPath(buf), getSecondPath(buf));
 
 	}
 

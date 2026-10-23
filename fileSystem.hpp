@@ -1,10 +1,12 @@
 #pragma once
 #include <map>
 #include <string>
+#include <vector>
 
 class entity {
 public:
 	virtual ~entity() {}
+	std::vector<entity*> parents;
 };
 
 class dir_entity: public entity {

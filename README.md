@@ -17,7 +17,7 @@ to an alternate location and recreated. The operations supported by the filesyst
 * MoveDir(path, dst): this operation moves a directory given by `path` to a new directory `dst`. Note the destination
   directory should already be present and the path should represent a valid directory to be moved. All contents of the directory are also moved.
 * RenameFile(path, dstPath): this operation moves and renames a file from `path` to `dstPath`. Note that both `path` and `dstPath` represent complete paths, and the file with `path` should already be present. Also, the parent directory in `dstPath` should already be created.
-
+* Link(path, newpath): this operation links an existing entity with location `path` to a new entity with location `newpath`. We assume that the parent directory in the `newpath` is already created. After the link is established, both paths can be used to access the original entity.
 To compile the filesystem:
 ```
   g++ -std=c++11 filesystem.cpp -o filesystem -lboost_json
@@ -96,6 +96,14 @@ The filesystem accepts the following operations:
 
   example:
   $rename_file test/hello.txt test1/newHello.txt
+```
+
+* Link an entity to a new location.
+```
+  $link <path> <dst_path>
+
+  example:
+  $link test/hello.txt test/newHello.txt
 ```
 
 * Exit the filesystem (and store contents in JSON if available)
