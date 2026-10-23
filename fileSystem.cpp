@@ -85,6 +85,30 @@ int makeDir(entity* root, std::string path) {
 	return 0;
 }
 
+int moveDir(entity* root, std::string src_path, std::string dst_path) {
+	std::vector<std::string> src_split = splitPath(src_path);
+	if (src_split.size() == 0) return -1;
+
+	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, src_split, src_split.size() - 1));
+	std::string dirname = src_split[src_split.size() - 1];
+	if (parentDir == nullptr || parentDir->children.find(dirname) == parentDir->children.end()) {
+		std::cout << "Path invalid, please make sure that the source directory is present."
+			  << std::endl;
+		return -1;
+	}
+	std::vector<std::string> dst_split = splitPath(dst_path);
+	dir_entity* dstDir = dynamic_cast<dir_entity*>(traversePath(root, dst_split, dst_split.size()));
+	if (dstDir == nullptr) {
+		std::cout << "Destination Path invalid, please make sure that the destination directory is present."
+			  << std::endl;
+		return -1;
+	}
+	auto* dir = parentDir->children[dirname];
+	parentDir->children.erase(dirname);
+	dstDir->children[dirname] = dir;
+	return 0;
+}
+
 int rmDir(entity* root, std::string path) {
 	std::vector<std::string> split = splitPath(path);
 	if (split.size() == 0) return -1;
@@ -113,6 +137,35 @@ int rmDir(entity* root, std::string path) {
 	}
 	delete dir;
 	parentDir->children.erase(dirname);
+	return 0;
+}
+
+int renameFile(entity* root, std::string path, std::string dst_path) {
+	std::vector<std::string> split = splitPath(path);
+	if (split.size() == 0) return -1;
+
+	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() -1 ));
+	auto filename = split[split.size() -1];
+	if (parentDir == nullptr || parentDir->children.find(filename) == parentDir->children.end()) {
+		std::cout << "Path invalid. Please make sure that the file is present along the path."
+			  << std::endl;
+		return -1;
+	}
+
+	std::vector<std::string> dstSplit = splitPath(dst_path);
+	if (dstSplit.size() == 0) return -1;
+
+	dir_entity* dstParentDir = dynamic_cast<dir_entity*>(traversePath(root, dstSplit, dstSplit.size() - 1));
+	auto dstFileName = dstSplit[dstSplit.size() - 1];
+	if (dstParentDir == nullptr || dstParentDir->children.find(dstFileName) != dstParentDir->children.end()) {
+		std::cout << "Destination path invalid. Please make sure the destination directory is present and a"
+			  << " file with new name is not present!" << std::endl;
+		return -1;
+	}
+	auto* file = parentDir->children[filename];
+	parentDir->children.erase(filename);
+	dstParentDir->children.emplace(dstFileName, file);
+
 	return 0;
 }
 
@@ -260,6 +313,22 @@ std::string getPath(std::string s) {
 	return "";
 }
 
+std::string getSecondPath(std::string s) {
+	int pos = 0;
+	// Look for second alpha-numeric string.
+	while (s[pos] == ' ') pos++;
+	pos = s.find_first_of(" ", pos);
+	if (pos == std::string::npos) return "";
+	while (s[pos] == ' ') pos++;
+	pos = s.find_first_of(" ", pos);
+	if (pos == std::string::npos) return "";
+	while (s[pos] == ' ') pos++;
+	int end_pos = s.find_first_of(" ", pos);
+	if (end_pos == std::string::npos) return s.substr(pos);
+	if (end_pos > pos) return s.substr(pos, end_pos - pos);
+	return "";
+}
+
 std::string getContents(std::string s) {
 	int pos = 0;
 	// Look for second alpha-numeric string.
@@ -321,6 +390,11 @@ int main(int argc, char** argv) {
 		if (op == "delete_file")
 			std::cout << "File Deleted: " << (removeFile(root, getPath(buf))? "Failure":"Success")
 				  << std::endl;
+		if (op == "mvdir")
+			moveDir(root, getPath(buf), getSecondPath(buf));
+		if (op == "rename_file")
+			renameFile(root, getPath(buf), getSecondPath(buf));
+
 	}
 
 	boost::json::object root_json = exportEntityToJson(root);

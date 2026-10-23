@@ -14,6 +14,9 @@ to an alternate location and recreated. The operations supported by the filesyst
   created and the directory is empty.
 * DeleteFile(path): this operation removes a file given by the `path`. The operation succeeds if the file is already
   present.
+* MoveDir(path, dst): this operation moves a directory given by `path` to a new directory `dst`. Note the destination
+  directory should already be present and the path should represent a valid directory to be moved. All contents of the directory are also moved.
+* RenameFile(path, dstPath): this operation moves and renames a file from `path` to `dstPath`. Note that both `path` and `dstPath` represent complete paths, and the file with `path` should already be present. Also, the parent directory in `dstPath` should already be created.
 
 To compile the filesystem:
 ```
@@ -77,6 +80,22 @@ The filesystem accepts the following operations:
 
   example:
   $delete_file hello.txt
+```
+
+* Move a directory to a new location.
+```
+  $mvdir <path> <dst>
+
+  example:
+  $mvdir child_dir new_parent_dir
+```
+
+* Rename a file and move the file to a new location.
+```
+  $rename_file <path> <dst_path>
+
+  example:
+  $rename_file test/hello.txt test1/newHello.txt
 ```
 
 * Exit the filesystem (and store contents in JSON if available)
