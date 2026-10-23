@@ -10,6 +10,10 @@ to an alternate location and recreated. The operations supported by the filesyst
 * WriteFile(path, data): this creates a file and writes contents given by `data`. We note that the operation assumes that the parent directory is already created and an entity with the name of the file is not already present.
 * Ls(path): this enables reading a directory and print immediate contents of the directory in a space-separated string of names. It returns empty string if the directory is not present or the returned entity is not a directory.
 * ReadFile(path): this operation reads contents of a file.
+* RmDir(path): this removes an empty directory given by the `path`. The operation succeeds if the directory is already
+  created and the directory is empty.
+* DeleteFile(path): this operation removes a file given by the `path`. The operation succeeds if the file is already
+  present.
 
 To compile the filesystem:
 ```
@@ -57,6 +61,22 @@ The filesystem accepts the following operations:
 
   example:
   $read_file /test1/testfile.txt
+```
+
+* Remove a directory.
+```
+  $rmdir <dir_path>
+
+  example:
+  $rmdir /test1
+```
+
+* Remove a file.
+```
+  $delete_file <file_path>
+
+  example:
+  $delete_file hello.txt
 ```
 
 * Exit the filesystem (and store contents in JSON if available)

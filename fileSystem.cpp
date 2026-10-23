@@ -65,6 +65,7 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 
 int makeDir(entity* root, std::string path) {
 	std::vector<std::string> split = splitPath(path);
+	if (split.size() == 0) return -1;
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
 	if (parentDir == nullptr) {
@@ -84,8 +85,40 @@ int makeDir(entity* root, std::string path) {
 	return 0;
 }
 
+int rmDir(entity* root, std::string path) {
+	std::vector<std::string> split = splitPath(path);
+	if (split.size() == 0) return -1;
+
+	dir_entity* parentDir = dynamic_cast <dir_entity*>(traversePath(root, split, split.size() -1));
+	if (parentDir == nullptr) {
+		std::cout << "Path invalid, please make sure that the parent directory is present."
+			  << std::endl;
+		return - 1;
+	}
+
+	auto dirname = split[split.size() - 1];
+	if (parentDir->children.find(dirname) == parentDir->children.end()) {
+		std::cout << "Entity with name " << dirname << " not found!" << std::endl;
+		return -1;
+	}
+
+	dir_entity* dir = dynamic_cast<dir_entity*>(parentDir->children[dirname]);
+	if (dir == nullptr) {
+		std::cout << "Entity with name " << dirname << " not found!" << std::endl;
+		return -1;
+	}
+	if (!dir->children.empty()) {
+		std::cout << "Not empty directory found. Please empty the directory before removing it." << std::endl;
+		return -1;
+	}
+	delete dir;
+	parentDir->children.erase(dirname);
+	return 0;
+}
+
 int writeFile(entity* root, std::string path, std::string data) {
 	std::vector<std::string> split = splitPath(path);
+	if (split.size() == 0) return -1;
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
 	if (parentDir == nullptr) {
@@ -105,6 +138,29 @@ int writeFile(entity* root, std::string path, std::string data) {
 	file->data = data;
 
 	parentDir->children.emplace(filename, file);
+	return 0;
+}
+
+int removeFile(entity* root, std::string path) {
+	std::vector<std::string> split = splitPath(path);
+	if (split.size() == 0) return -1;
+
+	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
+	if (parentDir == nullptr) {
+		std::cout << "Path invalid. Please provide the correct path to the file." << std::endl;
+		return -1;
+	}
+
+	auto filename = split[split.size() - 1];
+	if (parentDir->children.find(filename) == parentDir->children.end()) {
+		std::cout << "File not found. Please check the file is present in the path provided." << std::endl;
+		return -1;
+	}
+
+	entity* file = parentDir->children[filename];
+	delete file;
+
+	parentDir->children.erase(filename);
 	return 0;
 }
 
@@ -259,6 +315,12 @@ int main(int argc, char** argv) {
 			std::cout << ls(root, getPath(buf)) << std::endl;
 		if (op == "read_file")
 			std::cout << readFile(root, getPath(buf)) << std::endl;
+		if (op == "rmdir")
+			std::cout << "Dir Deleted: " << (rmDir(root, getPath(buf))? "Failure": "Success")
+				  << std::endl;
+		if (op == "delete_file")
+			std::cout << "File Deleted: " << (removeFile(root, getPath(buf))? "Failure":"Success")
+				  << std::endl;
 	}
 
 	boost::json::object root_json = exportEntityToJson(root);
