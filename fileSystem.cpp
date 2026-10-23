@@ -69,7 +69,7 @@ int makeDir(entity* root, std::string path) {
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
 	if (parentDir == nullptr) {
-		std::cout << "Path not valid, please make sure that the preceding directories in the path are present!"
+		std::cout << "Path invalid, please make sure that the parent directory is present!"
 			  << std::endl;
 		return -1;
 	}
@@ -92,14 +92,14 @@ int moveDir(entity* root, std::string src_path, std::string dst_path) {
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, src_split, src_split.size() - 1));
 	std::string dirname = src_split[src_split.size() - 1];
 	if (parentDir == nullptr || parentDir->children.find(dirname) == parentDir->children.end()) {
-		std::cout << "Path invalid, please make sure that the source directory is present."
+		std::cout << "Path invalid, please make sure that the source path is valid."
 			  << std::endl;
 		return -1;
 	}
 	std::vector<std::string> dst_split = splitPath(dst_path);
 	dir_entity* dstDir = dynamic_cast<dir_entity*>(traversePath(root, dst_split, dst_split.size()));
 	if (dstDir == nullptr) {
-		std::cout << "Destination Path invalid, please make sure that the destination directory is present."
+		std::cout << "Destination path invalid, please make sure that the destination directory is present."
 			  << std::endl;
 		return -1;
 	}
@@ -147,7 +147,7 @@ int renameFile(entity* root, std::string path, std::string dst_path) {
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() -1 ));
 	auto filename = split[split.size() -1];
 	if (parentDir == nullptr || parentDir->children.find(filename) == parentDir->children.end()) {
-		std::cout << "Path invalid. Please make sure that the file is present along the path."
+		std::cout << "Path invalid. Please make sure that the file is present."
 			  << std::endl;
 		return -1;
 	}
@@ -157,9 +157,14 @@ int renameFile(entity* root, std::string path, std::string dst_path) {
 
 	dir_entity* dstParentDir = dynamic_cast<dir_entity*>(traversePath(root, dstSplit, dstSplit.size() - 1));
 	auto dstFileName = dstSplit[dstSplit.size() - 1];
-	if (dstParentDir == nullptr || dstParentDir->children.find(dstFileName) != dstParentDir->children.end()) {
-		std::cout << "Destination path invalid. Please make sure the destination directory is present and a"
-			  << " file with new name is not present!" << std::endl;
+	if (dstParentDir == nullptr) {
+		std::cout << "Destination path invalid. Please make sure the destination directory is present."
+			  << std::endl;
+		return -1;
+	} 
+	if (dstParentDir->children.find(dstFileName) != dstParentDir->children.end()) {
+		std::cout << "Destination path invalid. Please make file with new name is not already present!"
+			  << std::endl;
 		return -1;
 	}
 	auto* file = parentDir->children[filename];
@@ -175,7 +180,7 @@ int writeFile(entity* root, std::string path, std::string data) {
 
 	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size() - 1));
 	if (parentDir == nullptr) {
-		std::cout << "Path not valid, please make sure that the preceding directories in the path are present!"
+		std::cout << "Path invalid, please make sure that the parent directory is present!"
 			  << std::endl;
 		return -1;
 	}
