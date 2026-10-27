@@ -53,11 +53,25 @@ std::vector<std::string> splitPath(std::string path) {
 
 entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 	auto* tmp = root;
+	std::vector<entity*> parent_path;
 	for (int i = 0; i < n; i++) {
 		auto* tmp_dir = dynamic_cast<dir_entity*>(tmp);
 		if (tmp_dir == nullptr) return nullptr;
+		if (splitPath[i] == ".") {
+			// No change in the current path
+			continue;
+		}
+		if (splitPath[i] == "..") {
+			// Go back to the parent directory.
+			if (parent_path.empty()) return nullptr;
+			tmp = parent_path.back();
+			parent_path.pop_back();
+			continue;
+		}
 		if (tmp_dir->children.find(splitPath[i]) == tmp_dir->children.end())
 			return nullptr;
+		// Update parent_path.
+		parent_path.push_back(tmp);
 		tmp = tmp_dir->children[splitPath[i]];
 	}
 	return tmp;
