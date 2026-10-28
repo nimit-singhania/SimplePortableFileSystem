@@ -61,6 +61,21 @@ std::string get_name(entity* node) {
     return "";
 }
 
+bool isalphanumeric(char c) {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+}	
+
+bool is_valid(std::string name) {
+	// Check that the name is valid and contains alphanumeric characters or a period (not at the first position).
+	if (!isalphanumeric(name[0])) return false;
+
+	for (int i = 1; i < name.size(); i++) {
+		if (!isalphanumeric(name[i]) && name[i] != '.') 
+			return false;
+	}
+	return true;
+}
+
 entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 	auto* tmp = root;
 	std::vector<entity*> parent_path;
@@ -119,6 +134,8 @@ int makeDir(entity* root, std::string path) {
 	}
 
 	auto dirname = split[split.size() - 1];
+	if (!is_valid(dirname)) return -1;
+
 	if (parentDir->children.find(dirname) != parentDir->children.end()) {
 		std::cout << "Entity with name " << dirname << " already present!" << std::endl;
 		return -1;
@@ -273,6 +290,7 @@ int writeFile(entity* root, std::string path, std::string data) {
 	}
 
 	auto filename = split[split.size() -1];
+	if (!is_valid(filename) return -1;
 	if (parentDir->children.find(filename) != parentDir->children.end()) {
 		std::cout << "Entity with name " << filename << " already present!" << std::endl;
 		return -1;
