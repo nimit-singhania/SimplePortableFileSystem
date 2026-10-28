@@ -34,6 +34,7 @@ To run the filesystem:
 To compile the filesystem (with Boost JSON support):
 ```
   g++ -std=c++11 -DBOOST filesystem.cpp -o filesystem -lboost_json
+```
 
 
 To run the filesystem and load contents from JSON (and also write back final contents to JSON):
