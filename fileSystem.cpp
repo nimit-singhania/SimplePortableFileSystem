@@ -53,14 +53,18 @@ std::vector<std::string> splitPath(std::string path) {
 	return result;
 }
 
-std::string get_name(entity* node) {
-    if (!node || node->parents.empty()) return "";
-    dir_entity* parent = dynamic_cast<dir_entity*>(node->parents[0]);
-    if (!parent) return "";
-    for (auto p : parent->children) {
-        if (p.second == node) return p.first;
+std::vector<std::string> get_name(entity* node) {
+    if (!node || node->parents.empty()) return {""};
+    std::vector<std::string> names;
+    for (auto p : node->parents) {
+        dir_entity* parent = dynamic_cast<dir_entity*>(p);
+	if (parent == nullptr) continue;
+
+    	for (auto c : parent->children) {
+       	    if (c.second == node) names.push_back(c.first);
 	}
-    return "";
+    }
+    return names;
 }
 
 bool isalphanumeric(char c) {
@@ -104,7 +108,8 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 			auto parentName = splitPath[i].substr(2);
 			bool parentFound = false;
 			for (auto p : tmp->parents) {
-				if (get_name(p) == parentName) {
+				auto parent_names = get_name(p);
+				if (std::find(parent_names.begin(), parent_names.end(), parentName) != parent_names.end()) {
 					tmp = p;
 					parentFound = true;
 					break;
