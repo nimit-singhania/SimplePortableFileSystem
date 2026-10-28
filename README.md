@@ -18,15 +18,23 @@ to an alternate location and recreated. The operations supported by the filesyst
   directory should already be present and the path should represent a valid directory to be moved. All contents of the directory are also moved.
 * RenameFile(path, dstPath): this operation moves and renames a file from `path` to `dstPath` relative to the current path. Note that both `path` and `dstPath` represent complete paths, and the file with `path` should already be present. Also, the parent directory in `dstPath` should already be created.
 * Link(path, newpath): this operation links an existing entity with location `path` to a new entity with location `newpath`. We assume that the parent directory in the `newpath` is already created. After the link is established, both paths can be used to access the original entity.
+* ChangeDir(path): this operation changes the current directory to the path specified. This is useful for performing local operations and also with support for parent path lookups, one can return back to the root location.
+
 To compile the filesystem:
 ```
-  g++ -std=c++11 filesystem.cpp -o filesystem -lboost_json
+  g++ -std=c++11 filesystem.cpp -o filesystem
 ```
 
 To run the filesystem:
 ```
   ./filesystem
+
 ```
+
+To compile the filesystem (with Boost JSON support):
+```
+  g++ -std=c++11 -DBOOST filesystem.cpp -o filesystem -lboost_json
+
 
 To run the filesystem and load contents from JSON (and also write back final contents to JSON):
 ```
