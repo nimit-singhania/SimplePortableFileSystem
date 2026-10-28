@@ -18,7 +18,9 @@
 #include <fstream>
 #include <vector>
 
+#ifdef BOOST
 #include "boost/json.hpp"
+#endif
 
 dir_entity::~dir_entity() {
 	for (auto p: this->children) {
@@ -290,7 +292,7 @@ int writeFile(entity* root, std::string path, std::string data) {
 	}
 
 	auto filename = split[split.size() -1];
-	if (!is_valid(filename) return -1;
+	if (!is_valid(filename)) return -1;
 	if (parentDir->children.find(filename) != parentDir->children.end()) {
 		std::cout << "Entity with name " << filename << " already present!" << std::endl;
 		return -1;
@@ -367,6 +369,7 @@ std::string readFile(entity* root, std::string path) {
 	return file->data;
 }
 
+#ifdef BOOST
 boost::json::object exportEntityToJson(entity* root) {
 	boost::json::object entity_json;
 
@@ -411,7 +414,7 @@ entity* readEntityFromJson(boost::json::object& obj_json) {
 	}
 	return nullptr;
 }
-
+#endif
 
 std::string getOperation(std::string s) {
 	int pos = 0;
@@ -468,6 +471,7 @@ std::string getContents(std::string s) {
 
 int main(int argc, char** argv) {
 	dir_entity* root;
+#ifdef BOOST
 	if (argc > 1) {
 		auto filename = argv[1];
 
@@ -480,6 +484,7 @@ int main(int argc, char** argv) {
 		// Read directory from the json object.
 		root = dynamic_cast<dir_entity*>(readEntityFromJson(input_json));
 	}
+#endif
 
 	if (!root)
 		root = new dir_entity();
@@ -525,8 +530,9 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	boost::json::object root_json = exportEntityToJson(root);
 	delete(root);
+#ifdef BOOST
+	boost::json::object root_json = exportEntityToJson(root);
 	std::cout << boost::json::serialize(root_json) << std::endl;
 
 	// write json to a file (specified by commandline).
@@ -546,6 +552,7 @@ int main(int argc, char** argv) {
             		os << sr.read( buf );
         	}
 	}
+#endif
 
 	return 0;
 }
