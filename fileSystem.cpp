@@ -51,6 +51,15 @@ std::vector<std::string> splitPath(std::string path) {
 	return result;
 }
 
+std::string get_name(entity* node) {
+    if (!node || node->parents.empty()) return "";
+    entity* parent = node->parents[0];
+    for (auto p : parent->children) {
+        if (p.second == node) return p.first;
+	}
+    return "";
+}
+
 entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 	auto* tmp = root;
 	std::vector<entity*> parent_path;
@@ -63,8 +72,27 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 		}
 		if (splitPath[i] == "..") {
 			// Go back to the parent directory.
-			if (parent_path.empty()) return nullptr;
+			if (parent_path.empty() && tmp->parents.empty()) return nullptr;
+			if (parent_path.empty()) {
+				tmp = tmp->parents[0];
+				continue;
+			}
 			tmp = parent_path.back();
+			parent_path.pop_back();
+			continue;
+		}
+		if (splitPath[i].starts_with("..")) {
+			// Extract parent name and go to that parent.
+			auto parentName = splitPath[i].substr(2);
+			bool parentFound = false;
+			for (auto p : tmp->parents) {
+				if (get_name(p) == parentName) {
+					tmp = p;
+					parentFound = true;
+					break;
+				}
+			}
+			if (!parentFound) return nullptr;
 			parent_path.pop_back();
 			continue;
 		}
