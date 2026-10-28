@@ -480,7 +480,7 @@ std::string getContents(std::string s) {
 
 
 int main(int argc, char** argv) {
-	dir_entity* root;
+	dir_entity* root = nullptr;
 #ifdef BOOST
 	if (argc > 1) {
 		auto filename = argv[1];
@@ -496,7 +496,7 @@ int main(int argc, char** argv) {
 	}
 #endif
 
-	if (!root)
+	if (root == nullptr)
 		root = new dir_entity();
 /*
 	std::cout << "Make dir output: " << makeDir(root, "/test1") << std::endl;
@@ -536,7 +536,7 @@ int main(int argc, char** argv) {
 		if (op == "chdir") {
 			auto split = splitPath(getPath(buf));
 			auto tmp = dynamic_cast<dir_entity*>(traversePath(root, split, split.size()));
-			if (!tmp) root = tmp;
+			if (tmp != nullptr) root = tmp;
 		}
 	}
 
