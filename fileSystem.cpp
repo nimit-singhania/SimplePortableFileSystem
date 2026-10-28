@@ -46,7 +46,13 @@ std::vector<std::string> splitPath(std::string path) {
 		}
 		else {
 			std::string s = path.substr(pos+1, next_pos - pos - 1);
-			if (!s.empty()) result.push_back(s);
+			if (s == "..") {
+				if (result.size() > 0 && result.back() != "..") result.pop_back();
+				else {
+					result.push_back(s);
+				}
+			}
+			else if (!s.empty() && s != ".") result.push_back(s);
 		}
 		pos = next_pos;
 	}
