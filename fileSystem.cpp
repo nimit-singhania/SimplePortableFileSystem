@@ -94,7 +94,10 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 		}
 		if (splitPath[i] == "..") {
 			// Go back to the parent directory.
-			if (parent_path.empty() && tmp->parents.empty()) return nullptr;
+			if (parent_path.empty() && tmp->parents.empty()) {
+				// Root reached.
+				continue;
+			}
 			if (parent_path.empty()) {
 				tmp = tmp->parents[0];
 				continue;
