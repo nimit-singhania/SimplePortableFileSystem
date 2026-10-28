@@ -172,6 +172,11 @@ int moveDir(entity* root, std::string src_path, std::string dst_path) {
 			  << std::endl;
 		return -1;
 	}
+	if (dstDir->children.find(dirname) != dstDir->children.end())
+	{
+		std::cout << "An entity with name " << dirname << " already present in the destination directory. " << std::endl;
+		return -1;
+	}
 	auto* dir = parentDir->children[dirname];
 	dir->parents.erase(std::find(dir->parents.begin(), dir->parents.end(), parentDir));
 	parentDir->children.erase(dirname);
