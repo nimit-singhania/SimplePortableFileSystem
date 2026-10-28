@@ -495,7 +495,11 @@ int main(int argc, char** argv) {
 			renameFile(root, getPath(buf), getSecondPath(buf));
 		if (op == "link")
 			link(root, getPath(buf), getSecondPath(buf));
-
+		if (op == "chdir") {
+			auto split = splitPath(getPath(buf));
+			auto tmp = traversePath(root, split, split.size());
+			if (!tmp) root = tmp;
+		}
 	}
 
 	boost::json::object root_json = exportEntityToJson(root);
