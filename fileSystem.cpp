@@ -53,7 +53,8 @@ std::vector<std::string> splitPath(std::string path) {
 
 std::string get_name(entity* node) {
     if (!node || node->parents.empty()) return "";
-    entity* parent = node->parents[0];
+    dir_entity* parent = dynamic_cast<dir_entity*>(node->parents[0]);
+    if (!parent) return "";
     for (auto p : parent->children) {
         if (p.second == node) return p.first;
 	}
@@ -81,7 +82,7 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 			parent_path.pop_back();
 			continue;
 		}
-		if (splitPath[i].starts_with("..")) {
+		if (splitPath[i].find_first_of("..") == 0) {
 			// Extract parent name and go to that parent.
 			auto parentName = splitPath[i].substr(2);
 			bool parentFound = false;
@@ -99,7 +100,7 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 		if (tmp_dir->children.find(splitPath[i]) == tmp_dir->children.end())
 			return nullptr;
 		// Update parent_path.
-		parent_path.push_back(tmp);
+		parent_path.push_back(tmp_dir);
 		tmp = tmp_dir->children[splitPath[i]];
 	}
 	return tmp;
@@ -157,7 +158,10 @@ int moveDir(entity* root, std::string src_path, std::string dst_path) {
 
 int rmDir(entity* root, std::string path) {
 	std::vector<std::string> split = splitPath(path);
-	if (split.size() == 0) return -1;
+	if (split.size() == 0 || traversePath(root, split, split.size()) == root) {
+		std::cout << "The current directory itself can not be removed. Please change directory before removing the directory." << std::endl;
+		return -1;
+	}
 
 	dir_entity* parentDir = dynamic_cast <dir_entity*>(traversePath(root, split, split.size() -1));
 	if (parentDir == nullptr) {
@@ -390,6 +394,7 @@ entity* readEntityFromJson(boost::json::object& obj_json) {
 	return nullptr;
 }
 
+
 std::string getOperation(std::string s) {
 	int pos = 0;
 	while (s[pos] == ' ') pos++;
@@ -497,7 +502,7 @@ int main(int argc, char** argv) {
 			link(root, getPath(buf), getSecondPath(buf));
 		if (op == "chdir") {
 			auto split = splitPath(getPath(buf));
-			auto tmp = traversePath(root, split, split.size());
+			auto tmp = dynamic_cast<dir_entity*>(traversePath(root, split, split.size()));
 			if (!tmp) root = tmp;
 		}
 	}
