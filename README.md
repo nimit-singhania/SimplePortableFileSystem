@@ -22,7 +22,7 @@ to an alternate location and recreated. The operations supported by the filesyst
 
 To compile the filesystem:
 ```
-  g++ -std=c++11 filesystem.cpp -o filesystem
+  g++ -std=c++11 filesystem.cpp driver.cpp -o filesystem
 ```
 
 To run the filesystem:
@@ -33,7 +33,7 @@ To run the filesystem:
 
 To compile the filesystem (with Boost JSON support):
 ```
-  g++ -std=c++11 -DBOOST filesystem.cpp -o filesystem -lboost_json
+  g++ -std=c++11 -DBOOST filesystem.cpp driver.cpp -o filesystem -lboost_json
 ```
 
 
