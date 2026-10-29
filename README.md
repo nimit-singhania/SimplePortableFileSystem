@@ -1,5 +1,7 @@
 ## Simple Portable FileSystem
 
+**New** Added a (Spec)[FileSystemSpec.cpp] file that provides the specifications supported by the file-system and validates these via simple unit-tests supporting each spec.
+
 This implementation presents a simple filesystem that allows operations like create a directory, write a file,
 read directory contents and read files. The implementation also supports reading a filesystem stored as JSON and
 writing back the updated filesystem as JSON. By enabling JSON support, the filesystem is portable, can be transfered
@@ -22,24 +24,30 @@ to an alternate location and recreated. The operations supported by the filesyst
 
 To compile the filesystem:
 ```
-  g++ -std=c++11 filesystem.cpp driver.cpp -o filesystem
+  g++ -std=c++11 fileSystem.cpp driver.cpp -o fileSystem
 ```
 
 To run the filesystem:
 ```
-  ./filesystem
+  ./fileSystem
 
 ```
 
 To compile the filesystem (with Boost JSON support):
 ```
-  g++ -std=c++11 -DBOOST filesystem.cpp driver.cpp -o filesystem -lboost_json
+  g++ -std=c++11 -DBOOST fileSystem.cpp driver.cpp -o fileSystem -lboost_json
 ```
 
 
 To run the filesystem and load contents from JSON (and also write back final contents to JSON):
 ```
-  ./filesystem <fs.json>
+  ./fileSystem <fs.json>
+```
+
+To run the Spec file with the filesystem that evaluates various operations in the filesystem via unit-tests:
+```
+  g++ -std=c++11 fileSystem.cpp fileSystemSpec.cpp -o fileSystemSpec
+  ./fileSystemSpec
 ```
 
 The filesystem accepts the following operations:
