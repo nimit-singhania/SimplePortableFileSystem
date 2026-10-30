@@ -7,120 +7,7 @@
 
 #ifdef BOOST
 #include "boost/json.hpp"
-#endif
 
-/*
-std::vector<std::string> splitPath(std::string path) {
-	std::vector<std::string> result;
-
-	if (path[0] != '/') {
-		path = '/' + path;
-	}
-
-	int pos = 0;
-	while(pos < path.size()) {
-		int next_pos = path.find_first_of("/", pos+1);
-		if (next_pos == std::string::npos) {
-			// next_pos is end of string.
-			std::string s = path.substr(pos+1);
-			if (!s.empty()) result.push_back(s);
-			break;
-		}
-		else {
-			std::string s = path.substr(pos+1, next_pos - pos - 1);
-			if (s == "..") {
-				if (result.size() > 0 && result.back() != "..") result.pop_back();
-				else {
-					result.push_back(s);
-				}
-			}
-			else if (!s.empty() && s != ".") result.push_back(s);
-		}
-		pos = next_pos;
-	}
-	return result;
-}
-
-std::vector<std::string> get_name(entity* node) {
-    if (!node || node->parents.empty()) return {""};
-    std::vector<std::string> names;
-    for (auto p : node->parents) {
-        dir_entity* parent = dynamic_cast<dir_entity*>(p);
-	if (parent == nullptr) continue;
-
-    	for (auto c : parent->children) {
-       	    if (c.second == node) names.push_back(c.first);
-	}
-    }
-    return names;
-}
-
-bool isalphanumeric(char c) {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
-}	
-
-bool is_valid(std::string name) {
-	// Check that the name is valid and contains alphanumeric characters or a period (not at the first position).
-	if (!isalphanumeric(name[0])) return false;
-
-	for (int i = 1; i < name.size(); i++) {
-		if (!isalphanumeric(name[i]) && name[i] != '.') 
-			return false;
-	}
-	return true;
-}
-
-entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
-	auto* tmp = root;
-	std::vector<entity*> parent_path;
-	for (int i = 0; i < n; i++) {
-		auto* tmp_dir = dynamic_cast<dir_entity*>(tmp);
-		if (tmp_dir == nullptr) return nullptr;
-		if (splitPath[i] == ".") {
-			// No change in the current path
-			continue;
-		}
-		if (splitPath[i] == "..") {
-			// Go back to the parent directory.
-			if (parent_path.empty() && tmp->parents.empty()) {
-				// Root reached.
-				continue;
-			}
-			if (parent_path.empty()) {
-				tmp = tmp->parents[0];
-				continue;
-			}
-			tmp = parent_path.back();
-			parent_path.pop_back();
-			continue;
-		}
-		if (splitPath[i].find_first_of("..") == 0) {
-			// Extract parent name and go to that parent.
-			auto parentName = splitPath[i].substr(2);
-			bool parentFound = false;
-			for (auto p : tmp->parents) {
-				auto parent_names = get_name(p);
-				if (std::find(parent_names.begin(), parent_names.end(), parentName) != parent_names.end()) {
-					tmp = p;
-					parentFound = true;
-					break;
-				}
-			}
-			if (!parentFound) return nullptr;
-			parent_path.pop_back();
-			continue;
-		}
-		if (tmp_dir->children.find(splitPath[i]) == tmp_dir->children.end())
-			return nullptr;
-		// Update parent_path.
-		parent_path.push_back(tmp_dir);
-		tmp = tmp_dir->children[splitPath[i]];
-	}
-	return tmp;
-}
-*/
-
-#ifdef BOOST
 boost::json::object exportEntityToJson(entity* root) {
 	boost::json::object entity_json;
 
@@ -239,13 +126,7 @@ int main(int argc, char** argv) {
 
 	if (root == nullptr)
 		root = new dir_entity();
-/*
-	std::cout << "Make dir output: " << makeDir(root, "/test1") << std::endl;
-	std::cout << "Write file output: " <<  writeFile(root, "/test1/testFile.txt", "Hello world!") << std::endl;
-	std::cout << "Ls output: " << ls(root, "/") << std::endl;
-	std::cout << "Ls output: " << ls(root, "/test1") << std::endl;
-	std::cout << "File contents: " << readFile(root, "/test1/testFile.txt") << std::endl;
-*/
+
 	while (true) {
 		char buf[1024];
 		std::cout << "$";
