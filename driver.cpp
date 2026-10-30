@@ -63,16 +63,16 @@ std::string getOperation(std::string s) {
 	return "";
 }
 
-std::string getPath(std::string s) {
+std::string getPath(std::string s, std::string base_path) {
 	int pos = 0;
 	// Look for second alpha-numeric string.
 	while (s[pos] == ' ') pos++;
 	pos = s.find_first_of(" ", pos);
-	if (pos == std::string::npos) return "";
+	if (pos == std::string::npos) return base_path;
 	while (s[pos] == ' ') pos++;
 	int end_pos = s.find_first_of(" ", pos);
-	if (end_pos == std::string::npos) return s.substr(pos);
-	if (end_pos > pos) return s.substr(pos, end_pos - pos);
+	if (end_pos == std::string::npos) return base_path + "/" + s.substr(pos);
+	if (end_pos > pos) return base_path + "/" + s.substr(pos, end_pos - pos);
 	return "";
 }
 
@@ -127,38 +127,46 @@ int main(int argc, char** argv) {
 	if (root == nullptr)
 		root = new dir_entity();
 
+	std::string currentPath = "";
 	while (true) {
 		char buf[1024];
-		std::cout << "$";
+		std::cout << currentPath << "$";
 		std::cin.getline(buf, 1024);
 		// Read operation.
 		std::string op = getOperation(buf);
-		// std::cout << "Perform operation: " << op << "(" << getPath(buf) << ")" << std::endl;
+#ifdef DEBUG
+		std::cout << "Perform operation: " << op << "(" << getPath(buf, currentPath) << ")" << std::endl;
+#endif
 		if (op == "exit") break;
 		if (op == "makedir")
-			makeDir(root, getPath(buf));
+			makeDir(root, getPath(buf, currentPath));
 		if (op == "write_file")
-			writeFile(root, getPath(buf), getContents(buf));
+			writeFile(root, getPath(buf, currentPath), getContents(buf));
 		if (op == "ls")
-			std::cout << ls(root, getPath(buf)) << std::endl;
+			std::cout << ls(root, getPath(buf, currentPath)) << std::endl;
 		if (op == "read_file")
-			std::cout << readFile(root, getPath(buf)) << std::endl;
+			std::cout << readFile(root, getPath(buf, currentPath)) << std::endl;
 		if (op == "rmdir")
-			std::cout << "Dir Deleted: " << (rmDir(root, getPath(buf))? "Failure": "Success")
+			std::cout << "Dir Deleted: " << (rmDir(root, getPath(buf, currentPath))? "Failure": "Success")
 				  << std::endl;
 		if (op == "delete_file")
-			std::cout << "File Deleted: " << (removeFile(root, getPath(buf))? "Failure":"Success")
+			std::cout << "File Deleted: " << (removeFile(root, getPath(buf, currentPath))? "Failure":"Success")
 				  << std::endl;
 		if (op == "mvdir")
-			moveDir(root, getPath(buf), getSecondPath(buf));
+			moveDir(root, getPath(buf, currentPath), getSecondPath(buf));
 		if (op == "rename_file")
-			renameFile(root, getPath(buf), getSecondPath(buf));
+			renameFile(root, getPath(buf, currentPath), getSecondPath(buf));
 		if (op == "link")
-			linkEntity(root, getPath(buf), getSecondPath(buf));
+			linkEntity(root, getPath(buf, currentPath), getSecondPath(buf));
 		if (op == "chdir") {
-			auto split = splitPath(getPath(buf));
+			auto split = splitPath(getPath(buf, currentPath));
 			auto tmp = dynamic_cast<dir_entity*>(traversePath(root, split, split.size()));
-			if (tmp != nullptr) root = tmp;
+			if (tmp != nullptr) {
+				currentPath = "";
+				for (auto d : split) {
+					currentPath += "/" + d;
+				}
+			}
 		}
 	}
 

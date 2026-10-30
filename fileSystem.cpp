@@ -32,41 +32,26 @@ std::vector<std::string> splitPath(std::string path) {
 	}
 
 	int pos = 0;
-	while(pos < path.size()) {
+	while(pos < path.size() && pos != std::string::npos) {
 		int next_pos = path.find_first_of("/", pos+1);
+		std::string s; 
 		if (next_pos == std::string::npos) {
 			// next_pos is end of string.
-			std::string s = path.substr(pos+1);
-			if (!s.empty()) result.push_back(s);
-			break;
+			s = path.substr(pos+1);
 		}
 		else {
-			std::string s = path.substr(pos+1, next_pos - pos - 1);
-			if (s == "..") {
-				if (result.size() > 0 && result.back() != "..") result.pop_back();
-				else {
-					result.push_back(s);
-				}
-			}
-			else if (!s.empty() && s != ".") result.push_back(s);
+			s = path.substr(pos+1, next_pos - pos - 1);
+		}
+		// Add parsed entity name to the result path.
+		if (s == ".." && result.size() > 0) {
+			result.pop_back();
+		}
+		else if (!s.empty() && s != ".") {
+			result.push_back(s);
 		}
 		pos = next_pos;
 	}
 	return result;
-}
-
-std::vector<std::string> get_name(entity* node) {
-    if (!node || node->parents.empty()) return {""};
-    std::vector<std::string> names;
-    for (auto p : node->parents) {
-        dir_entity* parent = dynamic_cast<dir_entity*>(p);
-	if (parent == nullptr) continue;
-
-    	for (auto c : parent->children) {
-       	    if (c.second == node) names.push_back(c.first);
-	}
-    }
-    return names;
 }
 
 bool isalphanumeric(char c) {
@@ -105,22 +90,6 @@ entity* traversePath(entity* root, std::vector<std::string> splitPath, int n) {
 				continue;
 			}
 			tmp = parent_path.back();
-			parent_path.pop_back();
-			continue;
-		}
-		if (splitPath[i].find_first_of("..") == 0) {
-			// Extract parent name and go to that parent.
-			auto parentName = splitPath[i].substr(2);
-			bool parentFound = false;
-			for (auto p : tmp->parents) {
-				auto parent_names = get_name(p);
-				if (std::find(parent_names.begin(), parent_names.end(), parentName) != parent_names.end()) {
-					tmp = p;
-					parentFound = true;
-					break;
-				}
-			}
-			if (!parentFound) return nullptr;
 			parent_path.pop_back();
 			continue;
 		}
