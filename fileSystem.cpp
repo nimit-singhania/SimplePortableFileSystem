@@ -18,6 +18,9 @@
 #include <fstream>
 #include <vector>
 
+// Path to the current directory from the root.
+std::string currentPath = "";
+
 dir_entity::~dir_entity() {
 	for (auto p: this->children) {
 		delete p.second;
@@ -127,6 +130,25 @@ int makeDir(entity* root, std::string path) {
 	parentDir->children.emplace(dirname, dir);
 	return 0;
 }
+
+int chDir(entity* root, std::string path) {
+	std::vector<std::string> split = splitPath(path);
+
+	dir_entity* parentDir = dynamic_cast<dir_entity*>(traversePath(root, split, split.size()));
+	if (parentDir == nullptr) {
+		std::cout << "Path invalid, please make sure that the parent directory is present!"
+			  << std::endl;
+		return -1;
+	}
+
+	// Change directory.
+	currentPath = "";
+	for (auto d : split) {
+		currentPath += "/" + d;
+	}
+	return 0;
+}
+
 
 int moveDir(entity* root, std::string src_path, std::string dst_path) {
 	std::vector<std::string> src_split = splitPath(src_path);

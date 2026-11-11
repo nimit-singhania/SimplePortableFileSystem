@@ -127,7 +127,6 @@ int main(int argc, char** argv) {
 	if (root == nullptr)
 		root = new dir_entity();
 
-	std::string currentPath = "";
 	while (true) {
 		char buf[1024];
 		std::cout << currentPath << "$";
@@ -159,14 +158,7 @@ int main(int argc, char** argv) {
 		if (op == "link")
 			linkEntity(root, getPath(buf, currentPath), getSecondPath(buf));
 		if (op == "chdir") {
-			auto split = splitPath(getPath(buf, currentPath));
-			auto tmp = dynamic_cast<dir_entity*>(traversePath(root, split, split.size()));
-			if (tmp != nullptr) {
-				currentPath = "";
-				for (auto d : split) {
-					currentPath += "/" + d;
-				}
-			}
+			chDir(root, getPath(buf, currentPath));	
 		}
 	}
 

@@ -20,9 +20,15 @@ public:
 	std::string data;
 };
 
+
+// Path to the current directory in the filesystem.
+extern std::string currentPath;
+
 // Operations
 
 int makeDir(entity* root, std::string path);
+
+int chDir(entity* root, std::string path);
 
 int moveDir(entity* root, std::string src_path, std::string dst_path);
 

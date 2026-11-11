@@ -1,6 +1,6 @@
 ## Simple Portable FileSystem
 
-**New** Added a (Spec)[FileSystemSpec.cpp] file that provides the specifications supported by the file-system and validates these via simple unit-tests supporting each spec.
+**New** Added a [Spec](FileSystemSpec.cpp) file that provides the specifications supported by the file-system and validates these via simple unit-tests supporting each spec.
 
 This implementation presents a simple filesystem that allows operations like create a directory, write a file,
 read directory contents and read files. The implementation also supports reading a filesystem stored as JSON and

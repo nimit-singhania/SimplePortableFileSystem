@@ -300,7 +300,7 @@ void MoveDirPathWithElipses() {
 	makeDir(root, "child");
 
 	// TODO replace with chDir.
-	root = dynamic_cast<dir_entity*>(root)->children["child"];
+	chDir(root, "child");
 	auto outupt = moveDir(root, "../child", "../test");
 
 	assertEqual("MoveDirPathWithElipses", outupt, 0);
